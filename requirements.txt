@@ -1,0 +1,20 @@
+# Jupyter
+jupyterlab>=3.2.0
+
+# Raster/COG
+rasterio>=1.4.0
+rio-cogeo>=5.4.1
+
+# Object store client
+obstore>=0.6.0
+fsspec
+s3fs
+
+# Vector & Parquet
+geopandas>=1.1.0
+fiona>=1.9.4
+pyarrow>=20.0.0
+matplotlib
+
+# Spatial hashing
+geohash-hilbert>=0.1.1
