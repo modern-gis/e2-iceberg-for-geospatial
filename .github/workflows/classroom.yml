@@ -1,37 +1,29 @@
 name: Autograde
-
 on:
   push:
     branches: [main]
   pull_request:
-
 permissions:
   contents: read
   pull-requests: write
-
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Run all tests (public + hidden)
+      - name: Run all tests
         id: pytest
         run: |
-          pytest -q tests/public tests/hidden | tee result.txt
+          pytest -q tests/test_e2_iceberg.py
           echo "result=$?" >> "$GITHUB_OUTPUT"
-
       - name: Output badge proof
         if: steps.pytest.outputs.result == '0'
         run: |
-          PROOF="brick-e1-$(echo ${{ github.actor }} | sha256sum | cut -c1-6)-$(date +%s)"
+          PROOF="brick-e2-$(echo ${{ github.actor }} | sha256sum | cut -c1-6)-$(date +%s)"
           echo "🎓 Badge Proof Code: $PROOF"
           echo "$PROOF" > badge_proof.txt
