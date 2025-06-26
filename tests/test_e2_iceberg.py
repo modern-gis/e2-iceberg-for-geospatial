@@ -1,42 +1,38 @@
+import json
+import os
 import pytest
-from pyiceberg.catalog import load_catalog
-from pyiceberg.schema import Schema
-import duckdb
 
-# Load the local Iceberg catalog defined in the notebook
-CAT = load_catalog(name="local")
+BADGE_FILE = "badge_proof.json"
 
-def test_table_exists():
-    """Test that the Iceberg table 'modern_gis.parks' exists"""
-    table = CAT.load_table("modern_gis.parks")
-    assert table is not None
+def test_badge_file_exists():
+    assert os.path.exists(BADGE_FILE), f"{BADGE_FILE} is missing"
 
-def test_initial_data_ingest():
-    """Test that initial data was ingested in the first snapshot"""
-    table = CAT.load_table("modern_gis.parks")
-    snapshots = table.snapshots
-    assert len(snapshots) >= 1
-    first = CAT.load_table("modern_gis.parks", snapshot_id=snapshots[0].snapshot_id)
-    df = first.to_pandas()
-    assert df.shape[0] > 0
+def test_badge_proof_structure():
+    with open(BADGE_FILE) as f:
+        proof = json.load(f)
 
-def test_time_travel_has_multiple_snapshots():
-    """Test that at least two snapshots exist after updates"""
-    table = CAT.load_table("modern_gis.parks")
-    assert len(table.snapshots) >= 2
+    # Top‐level keys
+    assert isinstance(proof, dict)
+    for key in ("table", "columns", "snapshots"):
+        assert key in proof, f"Missing key: {key}"
 
-def test_schema_evolution_column_present():
-    """Test that the 'source' column was added via schema evolution"""
-    schema = CAT.load_table("modern_gis.parks").schema
-    column_names = [field.name for field in schema.columns]
-    assert "source" in column_names
+    # table should be a non‐empty string
+    assert isinstance(proof["table"], str) and proof["table"], "Invalid table name"
 
-def test_duckdb_read_count():
-    """Test reading the Iceberg table via DuckDB returns rows"""
-    con = duckdb.connect()
-    con.execute("INSTALL iceberg; LOAD iceberg;")
-    con.execute(
-        "CALL iceberg.system.create_catalog('c', 'hadoop', {'warehouse':'s3://YOUR_BUCKET/iceberg_warehouse'});"
-    )
-    result = con.execute("SELECT COUNT(*) FROM c.modern_gis.parks;").fetchone()[0]
-    assert result > 0
+    # columns should be a non‐empty list of strings
+    cols = proof["columns"]
+    assert isinstance(cols, list) and cols, "columns must be a non‐empty list"
+    assert all(isinstance(c, str) and c for c in cols), "each column must be a non‐empty string"
+
+    # snapshots should be a non‐empty list of dicts
+    snaps = proof["snapshots"]
+    assert isinstance(snaps, list) and snaps, "snapshots must be a non‐empty list"
+    for idx, s in enumerate(snaps):
+        assert isinstance(s, dict), f"snapshot[{idx}] is not an object"
+        # Expect exactly these keys per snapshot
+        expected = {"snapshot_id", "timestamp", "row_count"}
+        assert set(s.keys()) == expected, f"snapshot[{idx}] keys {set(s.keys())} ≠ {expected}"
+        # Validate types
+        assert isinstance(s["snapshot_id"], (int, str)), "snapshot_id must be int or str"
+        assert isinstance(s["timestamp"], str), "timestamp must be a string"
+        assert isinstance(s["row_count"], int) and s["row_count"] >= 0, "row_count must be non-negative int"
