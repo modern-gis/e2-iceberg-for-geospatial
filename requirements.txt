@@ -1,5 +1,5 @@
 python-dotenv
-pyiceberg[sql,glue]
+pyiceberg[sql-sqlite,glue]
 pyarrow
 pandas
 duckdb
