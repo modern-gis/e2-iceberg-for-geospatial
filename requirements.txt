@@ -1,21 +1,10 @@
-# Environment variables helper
 python-dotenv
-
-# Iceberg with SQLite + Glue support
 pyiceberg[sql,glue]
-
-# Core data libs
 pyarrow
 pandas
 duckdb
-
-# AWS & S3
 boto3
 s3fs
-
-# Geospatial
 shapely
 geopandas
-
-# Notebook UI
 notebook
