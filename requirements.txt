@@ -8,3 +8,4 @@ s3fs
 shapely
 geopandas
 notebook
+pytest
