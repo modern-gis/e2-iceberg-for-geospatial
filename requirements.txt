@@ -1,6 +1,7 @@
 # Core dependencies for Brick E2
 pyiceberg
-'pyiceberg[sql-sqlite]'
+pyiceberg[sql-sqlite]
+pyiceberg[glue]
 pyarrow
 duckdb
 pandas
@@ -9,3 +10,4 @@ boto3
 shapely
 notebook
 geopandas
+
