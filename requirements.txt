@@ -1,13 +1,21 @@
-# Core dependencies for Brick E2
-pyiceberg
-pyiceberg[sql-sqlite]
-pyiceberg[glue]
+# Environment variables helper
+python-dotenv
+
+# Iceberg with SQLite + Glue support
+pyiceberg[sql,glue]
+
+# Core data libs
 pyarrow
-duckdb
 pandas
-s3fs
+duckdb
+
+# AWS & S3
 boto3
+s3fs
+
+# Geospatial
 shapely
-notebook
 geopandas
 
+# Notebook UI
+notebook
